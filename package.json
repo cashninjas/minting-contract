@@ -1,0 +1,25 @@
+{
+  "name": "minting-contract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cashninjas/minting-contract.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cashninjas/minting-contract/issues"
+  },
+  "homepage": "https://github.com/cashninjas/minting-contract#readme",
+  "dependencies": {
+    "@bitauth/libauth": "^2.0.0-alpha.8",
+    "cashscript": "^0.8.1",
+    "mainnet-js": "^2.0.1"
+  }
+}

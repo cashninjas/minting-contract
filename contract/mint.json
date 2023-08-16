@@ -1,0 +1,47 @@
+{
+  "contractName": "Mint",
+  "constructorInputs": [
+    {
+      "name": "mintPrice",
+      "type": "int"
+    },
+    {
+      "name": "increment",
+      "type": "int"
+    },
+    {
+      "name": "pkhPayout",
+      "type": "bytes20"
+    },
+    {
+      "name": "maximumCount",
+      "type": "int"
+    }
+  ],
+  "abi": [
+    {
+      "name": "mintNFT",
+      "inputs": []
+    },
+    {
+      "name": "payout",
+      "inputs": [
+        {
+          "name": "sigPayout",
+          "type": "sig"
+        },
+        {
+          "name": "pkPayout",
+          "type": "pubkey"
+        }
+      ]
+    }
+  ],
+  "bytecode": "OP_4 OP_PICK OP_0 OP_NUMEQUAL OP_IF OP_INPUTINDEX OP_0 OP_NUMEQUALVERIFY OP_0 OP_UTXOTOKENCOMMITMENT OP_BIN2NUM OP_DUP OP_5 OP_ROLL OP_LESSTHANOREQUAL OP_VERIFY OP_TXOUTPUTCOUNT OP_3 OP_LESSTHANOREQUAL OP_VERIFY OP_0 OP_OUTPUTBYTECODE OP_0 OP_UTXOBYTECODE OP_EQUALVERIFY OP_0 OP_OUTPUTTOKENCATEGORY OP_0 OP_UTXOTOKENCATEGORY OP_EQUALVERIFY OP_DUP OP_3 OP_ROLL OP_ADD OP_0 OP_OUTPUTTOKENCOMMITMENT OP_EQUALVERIFY OP_0 OP_OUTPUTVALUE OP_0 OP_UTXOVALUE OP_3 OP_ROLL OP_ADD OP_NUMEQUALVERIFY OP_1 OP_OUTPUTVALUE e803 OP_NUMEQUALVERIFY OP_1 OP_OUTPUTTOKENCOMMITMENT OP_EQUALVERIFY OP_0 OP_UTXOTOKENCATEGORY 20 OP_SPLIT OP_DROP OP_1 OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_TXOUTPUTCOUNT OP_3 OP_NUMEQUAL OP_IF OP_2 OP_OUTPUTTOKENCATEGORY OP_0 OP_EQUALVERIFY OP_ENDIF OP_2DROP OP_1 OP_ELSE OP_4 OP_ROLL OP_1 OP_NUMEQUALVERIFY OP_5 OP_PICK OP_HASH160 OP_3 OP_ROLL OP_EQUALVERIFY OP_3 OP_ROLL OP_4 OP_ROLL OP_CHECKSIGVERIFY OP_TXINPUTCOUNT OP_1 OP_NUMEQUALVERIFY OP_0 OP_UTXOTOKENCOMMITMENT OP_BIN2NUM OP_3 OP_ROLL OP_LESSTHANOREQUAL OP_IF OP_TXOUTPUTCOUNT OP_2 OP_NUMEQUALVERIFY OP_0 OP_OUTPUTBYTECODE OP_0 OP_UTXOBYTECODE OP_EQUALVERIFY OP_0 OP_OUTPUTTOKENCATEGORY OP_0 OP_UTXOTOKENCATEGORY OP_EQUALVERIFY OP_0 OP_OUTPUTTOKENCOMMITMENT OP_0 OP_UTXOTOKENCOMMITMENT OP_EQUALVERIFY OP_1 OP_OUTPUTTOKENCATEGORY OP_0 OP_EQUALVERIFY OP_ELSE OP_TXOUTPUTCOUNT OP_1 OP_NUMEQUALVERIFY OP_0 OP_OUTPUTTOKENCATEGORY OP_0 OP_EQUALVERIFY OP_ENDIF OP_2DROP OP_1 OP_ENDIF",
+  "source": "pragma cashscript ^0.8.0;\r\n\r\n// Multi-threaded minting smart contract\r\n\r\n// Contract holds the next NFT nummber to mint as state in the commitment field of the minting NFT\r\n// Contract consists of a mintNFT and a payout function\r\n\r\n// Opcode count: 84 (max 201)\r\n// Bytesize: 163 (max 520)\r\n\r\ncontract Mint(\r\n    int mintPrice,\r\n    int increment,\r\n    bytes20 pkhPayout,\r\n    int maximumCount\r\n) {\r\n    function mintNFT() {\r\n        // require minting contract to be at input index zero\r\n        require(this.activeInputIndex == 0);\r\n\r\n        // Read nftNumber from contract commitment\r\n        bytes commitment = tx.inputs[0].nftCommitment;\r\n        int nftNumber = int(commitment);\r\n        \r\n        // Check if minting is still allowed\r\n        require(nftNumber <= maximumCount);\r\n\r\n        // Limit the max number of outputs to 3\r\n        require(tx.outputs.length <= 3);\r\n            \r\n        // Output#0 preserves the NFT minting contract with a minting nft holding the new state and increased BCH value\r\n        require(tx.outputs[0].lockingBytecode == tx.inputs[0].lockingBytecode);\r\n        require(tx.outputs[0].tokenCategory == tx.inputs[0].tokenCategory);\r\n        int nextNftNumber = nftNumber + increment;\r\n        require(tx.outputs[0].nftCommitment == bytes(nextNftNumber));\r\n        require(tx.outputs[0].value == tx.inputs[0].value + mintPrice);\r\n\r\n        // Output#1 for the minted NFT\r\n        require(tx.outputs[1].value == 1000);\r\n        require(tx.outputs[1].nftCommitment == bytes(nftNumber));\r\n        // Strip capability to get the tokenId for an immutable NFT\r\n        bytes tokenId = tx.inputs[0].tokenCategory.split(32)[0];\r\n        require(tx.outputs[1].tokenCategory == tokenId);\r\n\r\n        // Allow for BCH change output\r\n        if(tx.outputs.length == 3){\r\n            // Output#2 BCH change output for minter\r\n            require(tx.outputs[2].tokenCategory == 0x);\r\n        }\r\n    }\r\n    function payout(sig sigPayout, pubkey pkPayout) {\r\n        // Check the signature & public key against pkhPayout\r\n        require(hash160(pkPayout) == pkhPayout);\r\n        require(checkSig(sigPayout, pkPayout));\r\n        \r\n        // require minting contract to be at input index zero\r\n        require(tx.inputs.length == 1);\r\n\r\n        // Read count from contract commitment\r\n        bytes commitment = tx.inputs[0].nftCommitment;\r\n        int nftNumber = int(commitment);\r\n\r\n        // Check if minting is still ongoing\r\n        if(nftNumber <= maximumCount){\r\n            // Limit the number of outputs to 2\r\n            require(tx.outputs.length == 2);\r\n                \r\n            // Output#0 preserves the NFT minting contract with same minting nft\r\n            require(tx.outputs[0].lockingBytecode == tx.inputs[0].lockingBytecode);\r\n            require(tx.outputs[0].tokenCategory == tx.inputs[0].tokenCategory);\r\n            require(tx.outputs[0].nftCommitment == tx.inputs[0].nftCommitment);\r\n\r\n            // Output#1 payout output\r\n            require(tx.outputs[1].tokenCategory == 0x);\r\n        } else {\r\n            // Output#0 payout output\r\n            require(tx.outputs.length == 1);\r\n\r\n            // Burns minting NFT\r\n            require(tx.outputs[0].tokenCategory == 0x);\r\n        }\r\n    }\r\n}\r\n",
+  "compiler": {
+    "name": "cashc",
+    "version": "0.8.1"
+  },
+  "updatedAt": "2023-09-16T11:11:05.608Z"
+}
