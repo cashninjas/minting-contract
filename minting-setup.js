@@ -39,7 +39,7 @@ const tokenMintRequests = [];
 for (let i = 0; i < numberOfThreads; i++) {
   const newTokenMintReq = new TokenMintRequest({
     cashaddr: contract.address,
-    commitment: bigIntToVmNumber(BigInt(i)),
+    commitment: binToHex(bigIntToVmNumber(BigInt(i))),
     capability: "minting",
     value: 1000,
   });
