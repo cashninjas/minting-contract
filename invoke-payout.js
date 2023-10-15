@@ -1,8 +1,8 @@
-import { Contract, ElectrumNetworkProvider, SignatureTemplate } from "cashscript";
-import contractArtifact from "./contract/mint.json" assert { type: "json" };
-import { decodeCashAddress, binToHex, hexToBin, vmNumberToBigInt } from "@bitauth/libauth";
+import { SignatureTemplate } from "cashscript";
+import { hexToBin, vmNumberToBigInt } from "@bitauth/libauth";
 import { Wallet, TestNetWallet } from "mainnet-js";
-import { tokenId, collectionSize, mintPriceSats, payoutAddress, numberOfThreads, network } from "./mintingParams.js";
+import { tokenId, collectionSize, payoutAddress, network } from "./mintingParams.js";
+import { generateContract } from "./generateContract.js";
 
 // Wallet authorized to call payout function
 const seedphrase = "";
@@ -16,29 +16,10 @@ const signatureTemplate = new SignatureTemplate(wallet.privateKeyWif);
 // Check if the right wallet is configured to invoke payouts
 if (wallet.address != payoutAddress) throw new Error("Provided wallet does not match Payout wallet (addresses don't match)")
 
-// Convert payoutAddress to payoutLockingBytecode
-const addressInfo = decodeCashAddress(payoutAddress);
-const pkhPayout = binToHex(addressInfo.payload);
-
-// The array of parameters to use for generating the contract
-const contractParams = [
-  BigInt(mintPriceSats),
-  BigInt(numberOfThreads),
-  pkhPayout,
-  BigInt(collectionSize),
-];
-
-// Initialise a network provider for network operations 
-const provider = new ElectrumNetworkProvider(network);
-const options = { provider };
-
-// Instantiate a new minting contract
-const contract = new Contract(contractArtifact, contractParams, options);
-
-console.log(`P2sh32 smart contract address is ${contract.address}`);
+const contract = generateContract();
 console.log('Total balance contracts:', await contract.getBalance());
 
-const contractUtxos = await contract.getUtxos()
+const contractUtxos = await contract.getUtxos();
 
 for (const contractUtxo of contractUtxos) {
   // Filter UTXOs on smart contract address
