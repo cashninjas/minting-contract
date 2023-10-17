@@ -65,9 +65,10 @@ Then create the minting set up with
 node minting-setup.js
 ```
 
-This will create the different threads for the minting contract, each tread is a UTXO on the smart contract address with a minting NFT.
+This will create the different threads for the minting contract with the CashScript advanced TransactionBuilder.
+
+Each tread is a UTXO on the smart contract address with a minting NFT.
 The minting NFTs each have a different starting commitment, starting from the VMnumber zero (an empty commitment).
-Currently a burn transaction is required with mainnet-js to burn the initial minting nft (this will change when the code is upgraded to the CashScript advanced transaction builder).
 
 To invoke the payouts from the minting contract, configure the wallet authorized to claim the payout in `invoke-payout.js`.
 
