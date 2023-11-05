@@ -5,8 +5,8 @@ import { tokenId, numberOfThreads, network } from "./mintingParams.js";
 import { generateContract } from "./generateContract.js";
 
 // Wallet to create minting set-up
-const seedphrase = "infant chalk candy guide tongue program two magnet actual capable camp affair";
-const addressDerivationPath = "m/44'/0'/0'/0/0";
+const seedphrase = "";
+const addressDerivationPath = "m/44'/145'/0'/0/0";
 
 // Initialise wallet
 let walletClass = network == "mainnet" ? Wallet : TestNetWallet;

@@ -45,7 +45,10 @@ npm install
 
 ## Usage
 
-To set up a minting contract, configure the parameters of the mint in `mintingParams.js`:
+You need to create a minting NFT with a CashTokens wallet in advance and you need to separate the authChain so you can manage your NFT collection's metadata.
+For more info about CashTokens metadata, see the [bcmr specification](https://github.com/bitjson/chip-bcmr#zeroth-descendant-transaction-chains).
+
+Next, to set up a minting contract, configure the parameters of the mint in `mintingParams.js`:
 
 ```js
 {
@@ -58,6 +61,8 @@ To set up a minting contract, configure the parameters of the mint in `mintingPa
 }
 ```
 To actually create the minting set up, configure a wallet holding some BCH and a minting NFT in `minting-setup.js`.
+You need to provide the correct `addressDerivationPath` so mainnet-js can initialize a single address wallet.
+For example if your minting NFT is at address index 4 in your Electron Cash, change `m/44'/145'/0'/0/0` to `m/44'/145'/0'/0/4`.
 
 Then create the minting set up with
 
