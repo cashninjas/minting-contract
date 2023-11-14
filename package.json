@@ -20,6 +20,7 @@
   "dependencies": {
     "@bitauth/libauth": "^2.0.0-alpha.8",
     "cashscript": "^0.9.1",
+    "dotenv": "^16.3.1",
     "mainnet-js": "^2.0.1"
   }
 }

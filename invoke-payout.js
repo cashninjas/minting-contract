@@ -1,16 +1,17 @@
 import { SignatureTemplate } from "cashscript";
 import { hexToBin, vmNumberToBigInt } from "@bitauth/libauth";
 import { Wallet, TestNetWallet } from "mainnet-js";
-import { tokenId, collectionSize, payoutAddress, network } from "./mintingParams.js";
+import { tokenId, collectionSize, payoutAddress, network } from "./mintingParamsNinjas.js";
 import { generateContract } from "./generateContract.js";
+import 'dotenv/config';
 
-// Wallet authorized to call payout function
-const seedphrase = "";
-const addressDerivationPath = "m/44'/145'/0'/0/0";
+// Get seedphrase + addressDerivationPath for invoke-payout from .env file
+const seedphrasePayout = process.env.SEEDPHRASE_PAYOUT;
+const addressDerivationPath = process.env.DERIVATIONPATH_PAYOUT;
 
 // Instantiate wallet
 const walletClass = network == "mainnet" ? Wallet : TestNetWallet;
-const wallet = await walletClass.fromSeed(seedphrase, addressDerivationPath);
+const wallet = await walletClass.fromSeed(seedphrasePayout, addressDerivationPath);
 const signatureTemplate = new SignatureTemplate(wallet.privateKeyWif);
 
 // Check if the right wallet is configured to invoke payouts

@@ -60,8 +60,18 @@ Next, to set up a minting contract, configure the parameters of the mint in `min
     network : "chipnet"
 }
 ```
-To actually create the minting set up, configure a wallet holding some BCH and a minting NFT in `minting-setup.js`.
-You need to provide the correct `addressDerivationPath` so mainnet-js can initialize a single address wallet.
+To actually do the minting setup on-chain, configure the wallet holding the minting NFT and a little BCH in a `.env` file.
+Example .env file:
+
+```bash
+SEEDPHRASE_SETUP = ""
+DERIVATIONPATH_SETUP = "m/44'/145'/0'/0/0"
+
+SEEDPHRASE_PAYOUT = ""
+DERIVATIONPATH_PAYOUT = "m/44'/145'/0'/0/0"
+```
+
+You need to provide the correct `DERIVATIONPATH_SETUP` to an adrress so mainnet-js can initialize a single address wallet.
 For example if your minting NFT is at address index 4 in your Electron Cash, change `m/44'/145'/0'/0/0` to `m/44'/145'/0'/0/4`.
 
 Then create the minting set up with
@@ -75,7 +85,7 @@ This will create the different threads for the minting contract with the CashScr
 Each tread is a UTXO on the smart contract address with a minting NFT.
 The minting NFTs each have a different starting commitment, starting from the VMnumber zero (an empty commitment).
 
-To invoke the payouts from the minting contract, configure the wallet authorized to claim the payout in `invoke-payout.js`.
+To invoke the payouts from the minting contract, configure the wallet authorized to claim the payout in the `.env` file.
 
 Then claim the contract payouts with
 

@@ -3,14 +3,15 @@ import { ElectrumNetworkProvider, SignatureTemplate, TransactionBuilder } from "
 import { Wallet, TestNetWallet } from "mainnet-js";
 import { tokenId, numberOfThreads, network } from "./mintingParams.js";
 import { generateContract } from "./generateContract.js";
+import 'dotenv/config';
 
-// Wallet to create minting set-up
-const seedphrase = "";
-const addressDerivationPath = "m/44'/145'/0'/0/0";
+// Get seedphrase + addressDerivationPath for minting-setup from .env file
+const seedphraseSetup = process.env.SEEDPHRASE_SETUP;
+const addressDerivationPath = process.env.DERIVATIONPATH_SETUP;
 
 // Initialise wallet
 let walletClass = network == "mainnet" ? Wallet : TestNetWallet;
-const wallet = await walletClass.fromSeed(seedphrase, addressDerivationPath);
+const wallet = await walletClass.fromSeed(seedphraseSetup, addressDerivationPath);
 const signatureTemplate = new SignatureTemplate(wallet.privateKey);
 
 // Generate contract object
