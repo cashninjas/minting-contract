@@ -6,6 +6,7 @@ import { collectionSize, mintPriceSats, payoutAddress, numberOfThreads, network 
 export function generateContract(){
     // Convert payoutAddress to payoutLockingBytecode
     const addressInfo = decodeCashAddress(payoutAddress);
+    if(typeof addressInfo == "string") throw new Error("Error in decodeCashAddress")
     const pkhPayout = binToHex(addressInfo.payload);
 
     // The array of parameters to use for generating the contract

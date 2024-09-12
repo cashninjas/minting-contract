@@ -4,7 +4,7 @@ Multi-threaded minting smart contract for the Bitcoin Cash network.
 
 The CashScript code for the smart contract is `contract/mint.cash` and the corresponding artifact `contract/mint.json`.
 
-The repo also includes helper functions to set up a smart contract with `minting-setup.js` and to claim payouts with `invoke-payout.js`.
+The repo also includes helper functions to set up a smart contract with `minting-setup.ts` and to claim payouts with `invoke-payout.ts`.
 
 ## Contract Design
 
@@ -48,7 +48,7 @@ npm install
 You need to create a minting NFT with a CashTokens wallet in advance and you need to separate the authChain so you can manage your NFT collection's metadata.
 For more info about CashTokens metadata, see the [bcmr specification](https://github.com/bitjson/chip-bcmr#zeroth-descendant-transaction-chains).
 
-Next, to set up a minting contract, configure the parameters of the mint in `mintingParams.js`:
+Next, to set up a minting contract, configure the parameters of the mint in `mintingParams.ts`:
 
 ```js
 {
@@ -77,7 +77,7 @@ For example if your minting NFT is at address index 4 in your Electron Cash, cha
 Then create the minting set up with
 
 ```
-node minting-setup.js
+tsx minting-setup.ts
 ```
 
 This will create the different threads for the minting contract with the CashScript advanced TransactionBuilder.
@@ -90,5 +90,5 @@ To invoke the payouts from the minting contract, configure the wallet authorized
 Then claim the contract payouts with
 
 ```
-node invoke-payout.js
+tsx invoke-payout.ts
 ```

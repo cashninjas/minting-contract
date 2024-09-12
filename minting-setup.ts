@@ -1,27 +1,29 @@
 import { binToHex, bigIntToVmNumber } from "@bitauth/libauth";
-import { ElectrumNetworkProvider, SignatureTemplate, TransactionBuilder } from "cashscript";
+import { ElectrumNetworkProvider, Output, SignatureTemplate, TransactionBuilder } from "cashscript";
 import { Wallet, TestNetWallet } from "mainnet-js";
 import { tokenId, numberOfThreads, network } from "./mintingParams.js";
 import { generateContract } from "./generateContract.js";
 import 'dotenv/config';
 
 // Get seedphrase + addressDerivationPath for minting-setup from .env file
-const seedphraseSetup = process.env.SEEDPHRASE_SETUP;
+const seedphraseSetup = process.env.SEEDPHRASE_SETUP as string;
 const addressDerivationPath = process.env.DERIVATIONPATH_SETUP;
 
 // Initialise wallet
 let walletClass = network == "mainnet" ? Wallet : TestNetWallet;
 const wallet = await walletClass.fromSeed(seedphraseSetup, addressDerivationPath);
+if(!wallet.privateKey) throw new Error("Error in wallet.privateKey")
+if(!wallet.address) throw new Error("Error in wallet.address")
 const signatureTemplate = new SignatureTemplate(wallet.privateKey);
 
 // Generate contract object
 const contract = generateContract();
 
 // Create the different mintingThreads with CashScript transaction builder
-const mintingThreads = [];
+const mintingThreads: Output[] = [];
 for (let i = 0; i < numberOfThreads; i++) {
   const commitmentThread = binToHex(bigIntToVmNumber(BigInt(i)));
-  const nftDetails = { capability: 'minting', commitment: commitmentThread }
+  const nftDetails = { capability: 'minting' as const, commitment: commitmentThread }
   const tokenDetails = { amount: 0n, category: tokenId, nft: nftDetails };
   const threadOutput = { to: contract.address, amount: 1000n, token: tokenDetails };
   mintingThreads.push(threadOutput);
@@ -30,8 +32,11 @@ for (let i = 0; i < numberOfThreads; i++) {
 // Use the selected inputs for the transaction
 const provider = new ElectrumNetworkProvider(network);
 const walletUtxos = await provider.getUtxos(wallet.address);
-const mintingUtxo = walletUtxos.find(utxo => utxo?.token?.category == tokenId && utxo?.token?.nft.capability == 'minting');
+const mintingUtxo = walletUtxos.find(utxo =>
+  utxo?.token?.category == tokenId && utxo?.token?.nft?.capability == 'minting'
+);
 const fundingUtxo = walletUtxos.find(utxo => !utxo.token && utxo.satoshis >= 5000n);
+if(!mintingUtxo || !fundingUtxo) throw new Error("Error in mintingUtxo || fundingUtxo")
 const inputsMint = [ mintingUtxo, fundingUtxo ];
 console.log(inputsMint);
 

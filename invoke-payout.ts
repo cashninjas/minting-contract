@@ -1,17 +1,18 @@
 import { SignatureTemplate } from "cashscript";
 import { hexToBin, vmNumberToBigInt } from "@bitauth/libauth";
 import { Wallet, TestNetWallet } from "mainnet-js";
-import { tokenId, collectionSize, payoutAddress, network } from "./mintingParamsNinjas.js";
+import { tokenId, collectionSize, payoutAddress, network } from "./mintingParams.ts";
 import { generateContract } from "./generateContract.js";
 import 'dotenv/config';
 
 // Get seedphrase + addressDerivationPath for invoke-payout from .env file
-const seedphrasePayout = process.env.SEEDPHRASE_PAYOUT;
+const seedphrasePayout = process.env.SEEDPHRASE_PAYOUT as string;
 const addressDerivationPath = process.env.DERIVATIONPATH_PAYOUT;
 
 // Instantiate wallet
 const walletClass = network == "mainnet" ? Wallet : TestNetWallet;
 const wallet = await walletClass.fromSeed(seedphrasePayout, addressDerivationPath);
+if(!wallet.privateKeyWif) throw new Error("Error in wallet.privateKey")
 const signatureTemplate = new SignatureTemplate(wallet.privateKeyWif);
 
 // Check if the right wallet is configured to invoke payouts
@@ -37,7 +38,8 @@ for (const contractUtxo of contractUtxos) {
       .from(contractUtxo)
       .withoutChange()
     // Check commitment to see minting contract is ongoing
-    const contractCommitment = vmNumberToBigInt(hexToBin(contractUtxo?.token?.nft?.commitment))
+    const contractCommitment = vmNumberToBigInt(hexToBin(contractUtxo?.token?.nft?.commitment as string))
+    if(typeof contractCommitment == "string") throw new Error("Error in vmNumberToBigInt")
     // If mint is ongoing, need to recreate minting contract at payout
     if (contractCommitment <= BigInt(collectionSize)) transaction.to(contract.tokenAddress, 1000n, tokenDetails);
     transaction.to(payoutAddress, payoutAmount);

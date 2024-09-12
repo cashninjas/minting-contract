@@ -2,10 +2,12 @@
   "name": "minting-contract",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate": "tsx generateContract.ts",
+    "setup": "tsx invoke-setup.ts",
+    "payout": "tsx invoke-payout.ts"
   },
   "repository": {
     "type": "git",
@@ -18,9 +20,10 @@
   },
   "homepage": "https://github.com/cashninjas/minting-contract#readme",
   "dependencies": {
-    "@bitauth/libauth": "^2.0.0-alpha.8",
+    "@bitauth/libauth": "^3.0.0",
     "cashscript": "^0.10.0",
     "dotenv": "^16.3.1",
-    "mainnet-js": "^2.0.1"
+    "mainnet-js": "^2.0.1",
+    "tsx": "^4.19.1"
   }
 }
