@@ -12,11 +12,10 @@ const addressDerivationPath = process.env.DERIVATIONPATH_PAYOUT;
 // Instantiate wallet
 const walletClass = network == "mainnet" ? Wallet : TestNetWallet;
 const wallet = await walletClass.fromSeed(seedphrasePayout, addressDerivationPath);
-if(!wallet.privateKeyWif) throw new Error("Error in wallet.privateKey")
 const signatureTemplate = new SignatureTemplate(wallet.privateKeyWif);
 
 // Check if the right wallet is configured to invoke payouts
-if (wallet.address != payoutAddress) throw new Error("Provided wallet does not match Payout wallet (addresses don't match)")
+if (wallet.cashaddr != payoutAddress) throw new Error("Provided wallet does not match Payout wallet (addresses don't match)")
 
 const contract = generateContract();
 console.log('Total balance contracts:', await contract.getBalance());

@@ -12,10 +12,10 @@ export function generateContract(){
     // The array of parameters to use for generating the contract
     // maximumCount = collectionSize-1 because count starts from zero
     const contractParams = [
-    BigInt(mintPriceSats),
-    BigInt(numberOfThreads),
-    pkhPayout,
-    BigInt(collectionSize - 1),
+        BigInt(mintPriceSats),
+        BigInt(numberOfThreads),
+        pkhPayout,
+        BigInt(collectionSize - 1),
     ];
 
     // Initialise a network provider for network operations 

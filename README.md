@@ -40,7 +40,7 @@ The contract combines `burnMintingNft` functionality in a minimal way into the `
 
 ```
 git clone git@github.com:cashninjas/minting-contract.git
-npm install
+yarn install
 ```
 
 ## Usage

@@ -12,8 +12,6 @@ const addressDerivationPath = process.env.DERIVATIONPATH_SETUP;
 // Initialise wallet
 let walletClass = network == "mainnet" ? Wallet : TestNetWallet;
 const wallet = await walletClass.fromSeed(seedphraseSetup, addressDerivationPath);
-if(!wallet.privateKey) throw new Error("Error in wallet.privateKey")
-if(!wallet.address) throw new Error("Error in wallet.address")
 const signatureTemplate = new SignatureTemplate(wallet.privateKey);
 
 // Generate contract object
@@ -31,7 +29,7 @@ for (let i = 0; i < numberOfThreads; i++) {
 
 // Use the selected inputs for the transaction
 const provider = new ElectrumNetworkProvider(network);
-const walletUtxos = await provider.getUtxos(wallet.address);
+const walletUtxos = await provider.getUtxos(wallet.cashaddr);
 const mintingUtxo = walletUtxos.find(utxo =>
   utxo?.token?.category == tokenId && utxo?.token?.nft?.capability == 'minting'
 );
@@ -46,7 +44,7 @@ const transactionBuilder = new TransactionBuilder({ provider })
   .setMaxFee(2000n)
 
 const changeAmount = mintingUtxo.satoshis + fundingUtxo.satoshis - 1100n * BigInt(numberOfThreads) - 500n;
-if(changeAmount > 2000n) transactionBuilder.addOutput({to: wallet.address, amount: changeAmount});
+if(changeAmount > 2000n) transactionBuilder.addOutput({to: wallet.cashaddr, amount: changeAmount});
 try {
   const { txid } = await transactionBuilder.send();
   console.log(`The txId for the minting set-up is ${txid}`);
